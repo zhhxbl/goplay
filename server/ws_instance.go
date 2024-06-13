@@ -10,7 +10,7 @@ import (
 	"runtime/debug"
 
 	"github.com/gorilla/websocket"
-	"github.com/leochen2038/play"
+	"github.com/zhhOceanfly/goplay"
 )
 
 var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {

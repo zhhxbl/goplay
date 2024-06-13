@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"unsafe"
 
-	"github.com/leochen2038/play"
+	"github.com/zhhOceanfly/goplay"
 	"github.com/zhhOceanfly/goplay/binder"
 	"github.com/zhhOceanfly/goplay/library/golang/json"
 )

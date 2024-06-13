@@ -7,7 +7,7 @@ import (
 	"net"
 	"runtime/debug"
 
-	"github.com/leochen2038/play"
+	"github.com/zhhOceanfly/goplay"
 )
 
 type TcpInstance struct {
