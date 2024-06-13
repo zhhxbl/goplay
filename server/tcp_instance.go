@@ -11,23 +11,23 @@ import (
 )
 
 type TcpInstance struct {
-	info      play.InstanceInfo
-	hook      play.IServerHook
-	ctrl      *play.InstanceCtrl
-	transport play.ITransport
+	info      goplay.InstanceInfo
+	hook      goplay.IServerHook
+	ctrl      *goplay.InstanceCtrl
+	transport goplay.ITransport
 }
 
-func NewTcpInstance(name string, addr string, transport play.ITransport, hook play.IServerHook) (*TcpInstance, error) {
+func NewTcpInstance(name string, addr string, transport goplay.ITransport, hook goplay.IServerHook) (*TcpInstance, error) {
 	if transport == nil {
 		return nil, errors.New("tcp instance transport must not be nil")
 	}
 	if hook == nil {
 		return nil, errors.New("tcp instance server hook must not be nil")
 	}
-	return &TcpInstance{info: play.InstanceInfo{Name: name, Address: addr, Type: TypeTcp}, transport: transport, hook: hook, ctrl: new(play.InstanceCtrl)}, nil
+	return &TcpInstance{info: goplay.InstanceInfo{Name: name, Address: addr, Type: TypeTcp}, transport: transport, hook: hook, ctrl: new(goplay.InstanceCtrl)}, nil
 }
 
-func (i *TcpInstance) accept(s *play.Session) {
+func (i *TcpInstance) accept(s *goplay.Session) {
 	var err error
 	defer func() {
 		if panicInfo := recover(); panicInfo != nil {
@@ -41,10 +41,10 @@ func (i *TcpInstance) accept(s *play.Session) {
 	err = i.onReady(s)
 }
 
-func (i *TcpInstance) onReady(s *play.Session) (err error) {
+func (i *TcpInstance) onReady(s *goplay.Session) (err error) {
 	var n int
 	var buffer = make([]byte, 4096)
-	var request *play.Request
+	var request *goplay.Request
 	var conn = s.Conn.Tcp.Conn
 
 	for {
@@ -74,30 +74,30 @@ func (i *TcpInstance) onReady(s *play.Session) (err error) {
 	}
 }
 
-func (i *TcpInstance) Info() play.InstanceInfo {
+func (i *TcpInstance) Info() goplay.InstanceInfo {
 	return i.info
 }
 
-func (i *TcpInstance) Hook() play.IServerHook {
+func (i *TcpInstance) Hook() goplay.IServerHook {
 	return i.hook
 }
 
-func (i *TcpInstance) Transport() play.ITransport {
+func (i *TcpInstance) Transport() goplay.ITransport {
 	return i.transport
 }
 
-func (i *TcpInstance) Ctrl() *play.InstanceCtrl {
+func (i *TcpInstance) Ctrl() *goplay.InstanceCtrl {
 	return i.ctrl
 }
 
 func (i *TcpInstance) Run(listener net.Listener) error {
 	for {
 		if conn, err := listener.Accept(); err != nil {
-			i.hook.OnConnect(play.NewSession(context.Background(), nil, i), err)
+			i.hook.OnConnect(goplay.NewSession(context.Background(), nil, i), err)
 			continue
 		} else {
 			go func() {
-				s := play.NewSession(context.Background(), new(play.Conn), i)
+				s := goplay.NewSession(context.Background(), new(goplay.Conn), i)
 				s.Conn.Tcp.Conn = conn
 				i.accept(s)
 			}()

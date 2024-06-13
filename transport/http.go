@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/zhhOceanfly/goplay"
 	"github.com/zhhOceanfly/goplay/binder"
 	"github.com/zhhOceanfly/goplay/library/golang/json"
 )
@@ -24,8 +25,8 @@ func NewHttpTransport(inputMaxSize int64, defaultRender string, htdocsFs embed.F
 	return &HttpTransport{inputMaxSize: inputMaxSize, defaultRender: defaultRender, htdocsFs: htdocsFs, templateFs: templateFs}
 }
 
-func (p *HttpTransport) Receive(c *play.Conn) (*play.Request, error) {
-	var request = new(play.Request)
+func (p *HttpTransport) Receive(c *goplay.Conn) (*goplay.Request, error) {
+	var request = new(goplay.Request)
 
 	request.Respond = true
 	request.ActionName, request.Render = ParseHttpPath(c.Http.Request.URL.Path)
@@ -37,7 +38,7 @@ func (p *HttpTransport) Receive(c *play.Conn) (*play.Request, error) {
 	return request, nil
 }
 
-func (p *HttpTransport) Response(c *play.Conn, res *play.Response) (err error) {
+func (p *HttpTransport) Response(c *goplay.Conn, res *goplay.Response) (err error) {
 	switch res.Render {
 	case "json":
 		err = HttpSendJson(c.Http.ResponseWriter, res.Output)
@@ -52,7 +53,7 @@ func (p *HttpTransport) Response(c *play.Conn, res *play.Response) (err error) {
 	return err
 }
 
-func HttpSendHtml(w http.ResponseWriter, tfs embed.FS, tp string, output play.Output) error {
+func HttpSendHtml(w http.ResponseWriter, tfs embed.FS, tp string, output goplay.Output) error {
 	var err error
 	var path = tp + ".html"
 	var t *template.Template
@@ -64,7 +65,7 @@ func HttpSendHtml(w http.ResponseWriter, tfs embed.FS, tp string, output play.Ou
 	return err
 }
 
-func HttpSendJson(w http.ResponseWriter, output play.Output) error {
+func HttpSendJson(w http.ResponseWriter, output goplay.Output) error {
 	var err error
 	var data []byte
 
@@ -93,7 +94,7 @@ func ParseHttpPath(path string) (action string, render string) {
 	return
 }
 
-func ParseHttpInput(request *http.Request, formMaxMemory int64) play.Binder {
+func ParseHttpInput(request *http.Request, formMaxMemory int64) goplay.Binder {
 	contentType := request.Header.Get("Content-Type")
 
 	if strings.Contains(contentType, "/json") {

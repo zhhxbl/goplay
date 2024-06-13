@@ -57,7 +57,7 @@ func genRegisterCronCode(path string) (registCode string) {
 			}
 			for _, v := range submath {
 				fmt.Println("register cronJob", packageName+"."+string(v[1]))
-				registCode += fmt.Sprintf("play.RegisterCronJob(\"%s.%s\", func() play.CronJob {return &%s.%s{}})\n", packageName, v[1], packageName, v[1])
+				registCode += fmt.Sprintf("play.RegisterCronJob(\"%s.%s\", func() goplay.CronJob {return &%s.%s{}})\n", packageName, v[1], packageName, v[1])
 			}
 		}
 		return nil
@@ -87,11 +87,11 @@ func genNextProcessorCode(proc *processorHandler, act *action) {
 		}
 		packages[strings.ReplaceAll(proc.name[:strings.LastIndex(proc.name, ".")], ".", "/")] = packageAlias
 		registerCode += "play.NewProcessorWrap(new(" + name + "),"
-		registerCode += "func(p play.Processor, ctx *play.Context) (string, error) {return play.RunProcessor(unsafe.Pointer(p.(*" + name + ")), unsafe.Sizeof(*p.(*" + name + ")),p, ctx)},"
+		registerCode += "func(p goplay.Processor, ctx *goplay.Context) (string, error) {return goplay.RunProcessor(unsafe.Pointer(p.(*" + name + ")), unsafe.Sizeof(*p.(*" + name + ")),p, ctx)},"
 		if proc.next == nil {
 			registerCode += "nil)"
 		} else {
-			registerCode += "map[string]*play.ProcessorWrap{"
+			registerCode += "map[string]*goplay.ProcessorWrap{"
 			for _, v := range proc.next {
 				registerCode += "\"" + v.rcstring + "\":"
 				genNextProcessorCode(v, act)

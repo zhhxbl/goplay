@@ -110,23 +110,23 @@ type ServerHook struct {
 
 }
 
-func (h *ServerHook)OnConnect(sess *play.Session, err error) {
+func (h *ServerHook)OnConnect(sess *goplay.Session, err error) {
 	// TODO
 }
 
-func (h *ServerHook)OnClose(sess *play.Session, err error) {
+func (h *ServerHook)OnClose(sess *goplay.Session, err error) {
 	// TODO
 }
 
-func (h *ServerHook)OnRequest(ctx *play.Context)  {
+func (h *ServerHook)OnRequest(ctx *goplay.Context)  {
 	// TODO
 }
 
-func (h *ServerHook)OnResponse(ctx *play.Context) {
+func (h *ServerHook)OnResponse(ctx *goplay.Context) {
 	// TODO
 }
 
-func (h *ServerHook)OnFinish(ctx *play.Context) {
+func (h *ServerHook)OnFinish(ctx *goplay.Context) {
 	// TODO
 }
 `, env.FrameworkName)

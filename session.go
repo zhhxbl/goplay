@@ -1,7 +1,8 @@
-package play
+package goplay
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 )
 

@@ -1,4 +1,4 @@
-package play
+package goplay
 
 type Output interface {
 	Get(key string) interface{}

@@ -1,5 +1,9 @@
 package config
 
+import (
+	"github.com/zhhOceanfly/goplay"
+)
+
 type Parser interface {
 	GetVal(key string) (val interface{}, err error)
 }
@@ -20,7 +24,7 @@ func Bool(key string) (val bool, err error) {
 		return
 	}
 
-	return play.ParseBool(v)
+	return goplay.ParseBool(v)
 }
 
 func String(key string) (val string, err error) {
@@ -29,7 +33,7 @@ func String(key string) (val string, err error) {
 		return
 	}
 
-	return play.ParseString(v)
+	return goplay.ParseString(v)
 }
 
 func Int(key string) (val int, err error) {
@@ -37,7 +41,7 @@ func Int(key string) (val int, err error) {
 	if v, err = configInstance.parser.GetVal(key); err != nil {
 		return
 	}
-	return play.ParseInt(v)
+	return goplay.ParseInt(v)
 }
 
 func Int64(key string) (val int64, err error) {
@@ -46,7 +50,7 @@ func Int64(key string) (val int64, err error) {
 		return
 	}
 
-	return play.ParseInt64(v)
+	return goplay.ParseInt64(v)
 }
 
 func Float64(key string) (val float64, err error) {
@@ -55,7 +59,7 @@ func Float64(key string) (val float64, err error) {
 		return
 	}
 
-	return play.ParseFloat64(v)
+	return goplay.ParseFloat64(v)
 }
 
 func MapInterface(key string) (list map[string]interface{}, err error) {
@@ -63,5 +67,5 @@ func MapInterface(key string) (list map[string]interface{}, err error) {
 	if v, err = configInstance.parser.GetVal(key); err != nil {
 		return
 	}
-	return play.ParseMapInterface(v)
+	return goplay.ParseMapInterface(v)
 }

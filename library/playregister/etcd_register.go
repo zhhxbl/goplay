@@ -1,4 +1,4 @@
-package playregister
+package goplayregister
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/zhhOceanfly/goplay"
 	"github.com/zhhOceanfly/goplay/config"
 	"github.com/zhhOceanfly/goplay/library/cache"
 	"github.com/zhhOceanfly/goplay/library/etcd"
@@ -53,13 +54,13 @@ func EtcdWithArgs(configKey, runningKey, crontabKey string, endpoints []string) 
 	config.InitConfig(configParser)
 
 	// step 2. 注册运行时状态
-	intranetIp = play.GetIntranetIp().String()
+	intranetIp = goplay.GetIntranetIp().String()
 	exePath, _ = os.Executable()
 	socketListen, _ = config.String("listen.socket")
 	httpListen, _ = config.String("listen.http")
 
 	// step 3. 开始定时任务
-	play.CronStartWithEtcd(etcdAgent, crontabKey, exePath+".cron")
+	goplay.CronStartWithEtcd(etcdAgent, crontabKey, exePath+".cron")
 
 	// step 4. 初始化cache
 	if appName, _ := config.String("appName"); appName != "" {
@@ -94,7 +95,7 @@ func getEtcdKeyAndEndpoints(configUrl string) (configKey, runningKey, crontabKey
 	var responseByte []byte
 	var responseMap map[string]interface{}
 
-	ip = play.GetIntranetIp().String()
+	ip = goplay.GetIntranetIp().String()
 	if path, err = os.Executable(); err != nil {
 		return
 	}

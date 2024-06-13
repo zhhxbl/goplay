@@ -1,11 +1,12 @@
-package play
+package goplay
 
 import (
-	"github.com/gorilla/websocket"
 	"net"
 	"net/http"
 	"reflect"
 	"sync"
+
+	"github.com/gorilla/websocket"
 )
 
 type IServerHook interface {

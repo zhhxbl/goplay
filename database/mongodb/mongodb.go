@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/zhhOceanfly/goplay"
 	"github.com/zhhOceanfly/goplay/config"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -28,7 +29,7 @@ func getConnect(ctx context.Context, router string) (*mongo.Client, error) {
 	}
 	if connect, _ := dbconnects.Load(dest); connect == nil {
 		scheme := "mongodb"
-		username, password, host, _ := play.DecodeHost(scheme, dest)
+		username, password, host, _ := goplay.DecodeHost(scheme, dest)
 		if username == "" {
 			mongoURI = scheme + "://" + host
 		} else {
@@ -53,7 +54,7 @@ func getConnect(ctx context.Context, router string) (*mongo.Client, error) {
 	}
 }
 
-func getCollection(query *play.Query) (collection *mongo.Collection, err error) {
+func getCollection(query *goplay.Query) (collection *mongo.Collection, err error) {
 	var client *mongo.Client
 	if client, err = getConnect(context.Background(), query.Router); err != nil {
 		return nil, err
@@ -62,7 +63,7 @@ func getCollection(query *play.Query) (collection *mongo.Collection, err error) 
 	return
 }
 
-func GetList(dest interface{}, query *play.Query) (err error) {
+func GetList(dest interface{}, query *goplay.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
@@ -82,7 +83,7 @@ func GetList(dest interface{}, query *play.Query) (err error) {
 	return
 }
 
-func GetOne(dest interface{}, query *play.Query) (err error) {
+func GetOne(dest interface{}, query *goplay.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
@@ -93,12 +94,12 @@ func GetOne(dest interface{}, query *play.Query) (err error) {
 
 	err = collection.FindOne(query.Context, filter, options).Decode(dest)
 	if err == mongo.ErrNoDocuments {
-		return play.ErrQueryEmptyResult
+		return goplay.ErrQueryEmptyResult
 	}
 	return
 }
 
-func UpdateAndGetOne(dest interface{}, query *play.Query) (err error) {
+func UpdateAndGetOne(dest interface{}, query *goplay.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
@@ -113,12 +114,12 @@ func UpdateAndGetOne(dest interface{}, query *play.Query) (err error) {
 
 	err = collection.FindOneAndUpdate(query.Context, filter, update).Decode(dest)
 	if err == mongo.ErrNoDocuments {
-		return play.ErrQueryEmptyResult
+		return goplay.ErrQueryEmptyResult
 	}
 	return
 }
 
-func Save(meta interface{}, upsetId *primitive.ObjectID, query *play.Query) (err error) {
+func Save(meta interface{}, upsetId *primitive.ObjectID, query *goplay.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
@@ -134,7 +135,7 @@ func Save(meta interface{}, upsetId *primitive.ObjectID, query *play.Query) (err
 	return
 }
 
-func Delete(query *play.Query) (modcount int64, err error) {
+func Delete(query *goplay.Query) (modcount int64, err error) {
 	var result *mongo.DeleteResult
 	var collection *mongo.Collection
 
@@ -155,7 +156,7 @@ func Delete(query *play.Query) (modcount int64, err error) {
 	return result.DeletedCount, nil
 }
 
-func Update(query *play.Query) (modcount int64, err error) {
+func Update(query *goplay.Query) (modcount int64, err error) {
 	var result *mongo.UpdateResult
 	var collection *mongo.Collection
 
@@ -176,7 +177,7 @@ func Update(query *play.Query) (modcount int64, err error) {
 	return result.ModifiedCount, nil
 }
 
-func SaveList(metaList interface{}, query *play.Query) (err error) {
+func SaveList(metaList interface{}, query *goplay.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
@@ -190,7 +191,7 @@ func SaveList(metaList interface{}, query *play.Query) (err error) {
 	return
 }
 
-func Count(query *play.Query) (count int64, err error) {
+func Count(query *goplay.Query) (count int64, err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
@@ -203,7 +204,7 @@ func Count(query *play.Query) (count int64, err error) {
 	return
 }
 
-func modifier(query *play.Query) bson.M {
+func modifier(query *goplay.Query) bson.M {
 	var mod bson.M = bson.M{}
 	var set bson.M = bson.M{}
 	var inc bson.M = bson.M{}
@@ -259,7 +260,7 @@ func fieldType(item interface{}) string {
 	return ""
 }
 
-func findOptions(query *play.Query) *options.FindOptions {
+func findOptions(query *goplay.Query) *options.FindOptions {
 	options := &options.FindOptions{}
 	if query.Limit[1] > 0 {
 		options.SetSkip(query.Limit[0])
@@ -280,7 +281,7 @@ func findOptions(query *play.Query) *options.FindOptions {
 	return options
 }
 
-func findOneOptions(query *play.Query) *options.FindOneOptions {
+func findOneOptions(query *goplay.Query) *options.FindOneOptions {
 	options := options.FindOneOptions{}
 	if query.Limit[1] > 0 {
 		options.SetSkip(query.Limit[0])
@@ -300,7 +301,7 @@ func findOneOptions(query *play.Query) *options.FindOneOptions {
 	return &options
 }
 
-func fetch(query *play.Query) bson.M {
+func fetch(query *goplay.Query) bson.M {
 	var filter = bson.M{}
 	for _, cond := range query.Conditions {
 		var fieldCon bson.M

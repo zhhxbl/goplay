@@ -5,11 +5,13 @@ import (
 	"log"
 	"net"
 	"time"
+
+	"github.com/zhhOceanfly/goplay"
 )
 
 var noDeadline time.Time
 
-func RequestWithPlayTrace(version byte, trace *play.TraceContext, callerId int, address string, action string, message []byte, respond bool, timeout time.Duration) (reponseByte []byte, err error) {
+func RequestWithPlayTrace(version byte, trace *goplay.TraceContext, callerId int, address string, action string, message []byte, respond bool, timeout time.Duration) (reponseByte []byte, err error) {
 	trace.SpanId++
 	var spanId = make([]byte, 0, 16)
 	spanId = append(spanId, trace.ParentSpanId...)
@@ -26,7 +28,7 @@ func _connect(version byte, address string, callerId int, traceId string, spanId
 	defer conn.Close()
 
 	if traceId == "" {
-		traceId = play.Generate28Id("trac", "", net.ParseIP(conn.LocalAddr().String()))
+		traceId = goplay.Generate28Id("trac", "", net.ParseIP(conn.LocalAddr().String()))
 	}
 	requestByte, protocolSize := buildRequestBytes(version, tagId, traceId, spanId, callerId, action, message, respond)
 

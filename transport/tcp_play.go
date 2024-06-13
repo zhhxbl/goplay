@@ -62,7 +62,7 @@ func NewTcpPlayTransport() *TcpPlayTransport {
 	return new(TcpPlayTransport)
 }
 
-func (p *TcpPlayTransport) Receive(c *play.Conn) (*play.Request, error) {
+func (p *TcpPlayTransport) Receive(c *goplay.Conn) (*goplay.Request, error) {
 	var err error
 	var buffer = c.Tcp.Surplus
 	if len(buffer) < 8 {
@@ -77,7 +77,7 @@ func (p *TcpPlayTransport) Receive(c *play.Conn) (*play.Request, error) {
 		return nil, nil
 	}
 
-	request := play.Request{Version: buffer[8]}
+	request := goplay.Request{Version: buffer[8]}
 	switch request.Version {
 	case 2:
 		err = readProtocolV2(buffer, dataSize, &request)
@@ -93,7 +93,7 @@ func (p *TcpPlayTransport) Receive(c *play.Conn) (*play.Request, error) {
 	return &request, nil
 }
 
-func (p *TcpPlayTransport) Response(c *play.Conn, res *play.Response) (err error) {
+func (p *TcpPlayTransport) Response(c *goplay.Conn, res *goplay.Response) (err error) {
 	var message []byte
 	var buffer []byte
 
@@ -116,7 +116,7 @@ func (p *TcpPlayTransport) Response(c *play.Conn, res *play.Response) (err error
 	return
 }
 
-func (p *TcpPlayTransport) Request(request *play.Request) {
+func (p *TcpPlayTransport) Request(request *goplay.Request) {
 
 }
 
@@ -148,7 +148,7 @@ func packResponseProtocolV3(message []byte, traceId string, rc int, tagId int) (
 	return
 }
 
-func readProtocolV2(buffer []byte, dataSize int, protocol *play.Request) error {
+func readProtocolV2(buffer []byte, dataSize int, protocol *goplay.Request) error {
 	actionEndIdx := 49 + bytes2Int(buffer[12:13])
 	messageEndIdx := actionEndIdx + bytes2Int(buffer[13:17])
 	if buffer[9] > 0 {
@@ -163,7 +163,7 @@ func readProtocolV2(buffer []byte, dataSize int, protocol *play.Request) error {
 	return nil
 }
 
-func readProtocolV3(buffer []byte, dataSize int, protocol *play.Request) error {
+func readProtocolV3(buffer []byte, dataSize int, protocol *goplay.Request) error {
 	if dataSize < 67 {
 		return errors.New("socket protocol format error")
 	}

@@ -13,10 +13,10 @@ import (
 )
 
 type httpInstance struct {
-	info      play.InstanceInfo
-	hook      play.IServerHook
-	ctrl      *play.InstanceCtrl
-	transport play.ITransport
+	info      goplay.InstanceInfo
+	hook      goplay.IServerHook
+	ctrl      *goplay.InstanceCtrl
+	transport goplay.ITransport
 
 	tlsConfig  *tls.Config
 	httpServer http.Server
@@ -24,14 +24,14 @@ type httpInstance struct {
 	sse        *sseInstance
 }
 
-func NewHttpInstance(name string, addr string, transport play.ITransport, hook play.IServerHook) (*httpInstance, error) {
+func NewHttpInstance(name string, addr string, transport goplay.ITransport, hook goplay.IServerHook) (*httpInstance, error) {
 	if transport == nil {
 		return nil, errors.New("tcp instance transport must not be nil")
 	}
 	if hook == nil {
 		return nil, errors.New("tcp instance server hook must not be nil")
 	}
-	return &httpInstance{info: play.InstanceInfo{Name: name, Address: addr, Type: TypeHttp}, transport: transport, hook: hook, ctrl: new(play.InstanceCtrl)}, nil
+	return &httpInstance{info: goplay.InstanceInfo{Name: name, Address: addr, Type: TypeHttp}, transport: transport, hook: hook, ctrl: new(goplay.InstanceCtrl)}, nil
 }
 
 func (i *httpInstance) Run(listener net.Listener) error {
@@ -47,26 +47,26 @@ func (i *httpInstance) Close() {
 	i.ctrl.WaitTask()
 }
 
-func (i *httpInstance) Info() play.InstanceInfo {
+func (i *httpInstance) Info() goplay.InstanceInfo {
 	return i.info
 }
 
-func (i *httpInstance) Hook() play.IServerHook {
+func (i *httpInstance) Hook() goplay.IServerHook {
 	return i.hook
 }
 
-func (i *httpInstance) Transport() play.ITransport {
+func (i *httpInstance) Transport() goplay.ITransport {
 	return i.transport
 }
 
-func (i *httpInstance) Ctrl() *play.InstanceCtrl {
+func (i *httpInstance) Ctrl() *goplay.InstanceCtrl {
 	return i.ctrl
 }
 
 func (i *httpInstance) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var request *play.Request
-	var sess = play.NewSession(r.Context(), new(play.Conn), i)
+	var request *goplay.Request
+	var sess = goplay.NewSession(r.Context(), new(goplay.Conn), i)
 	sess.Conn.Http.Request, sess.Conn.Http.ResponseWriter = r, w
 
 	if i.ws != nil {

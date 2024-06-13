@@ -18,29 +18,29 @@ var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {
 }}
 
 type wsInstance struct {
-	info      play.InstanceInfo
-	hook      play.IServerHook
-	ctrl      *play.InstanceCtrl
-	transport play.ITransport
+	info      goplay.InstanceInfo
+	hook      goplay.IServerHook
+	ctrl      *goplay.InstanceCtrl
+	transport goplay.ITransport
 
 	tlsConfig  *tls.Config
 	httpServer http.Server
 }
 
-func NewWsInstance(name string, addr string, transport play.ITransport, hook play.IServerHook) (*wsInstance, error) {
+func NewWsInstance(name string, addr string, transport goplay.ITransport, hook goplay.IServerHook) (*wsInstance, error) {
 	if transport == nil {
 		return nil, errors.New("ws instance transport must not be nil")
 	}
 	if hook == nil {
 		return nil, errors.New("ws instance hook must not be nil")
 	}
-	return &wsInstance{info: play.InstanceInfo{Name: name, Address: addr, Type: TypeWebsocket}, transport: transport, hook: hook, ctrl: new(play.InstanceCtrl)}, nil
+	return &wsInstance{info: goplay.InstanceInfo{Name: name, Address: addr, Type: TypeWebsocket}, transport: transport, hook: hook, ctrl: new(goplay.InstanceCtrl)}, nil
 }
 
 func (i *wsInstance) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var conn *websocket.Conn
-	var sess = play.NewSession(r.Context(), nil, i)
+	var sess = goplay.NewSession(r.Context(), nil, i)
 
 	defer func() {
 		recover()
@@ -51,16 +51,16 @@ func (i *wsInstance) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess.Conn = new(play.Conn)
+	sess.Conn = new(goplay.Conn)
 	sess.Conn.Websocket.WebsocketConn = conn
 	sess.Conn.Http.Request, sess.Conn.Http.ResponseWriter = r, w
 
 	i.accept(sess)
 }
 
-func (i *wsInstance) accept(s *play.Session) {
+func (i *wsInstance) accept(s *goplay.Session) {
 	var err error
-	var request *play.Request
+	var request *goplay.Request
 
 	i.hook.OnConnect(s, nil)
 	defer func() {
@@ -79,7 +79,7 @@ func (i *wsInstance) accept(s *play.Session) {
 	err = i.onReady(s)
 }
 
-func (i *wsInstance) onReady(sess *play.Session) error {
+func (i *wsInstance) onReady(sess *goplay.Session) error {
 	for {
 		sessContext := sess.Context()
 		select {
@@ -119,19 +119,19 @@ func (i *wsInstance) update(w http.ResponseWriter, r *http.Request) (*websocket.
 	}
 }
 
-func (i *wsInstance) Info() play.InstanceInfo {
+func (i *wsInstance) Info() goplay.InstanceInfo {
 	return i.info
 }
 
-func (i *wsInstance) Transport() play.ITransport {
+func (i *wsInstance) Transport() goplay.ITransport {
 	return i.transport
 }
 
-func (i *wsInstance) Hook() play.IServerHook {
+func (i *wsInstance) Hook() goplay.IServerHook {
 	return i.hook
 }
 
-func (i *wsInstance) Ctrl() *play.InstanceCtrl {
+func (i *wsInstance) Ctrl() *goplay.InstanceCtrl {
 	return i.ctrl
 }
 

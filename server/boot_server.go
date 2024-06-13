@@ -13,10 +13,12 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+
+	"github.com/zhhOceanfly/goplay"
 )
 
 type runningInstance struct {
-	server   play.IServer
+	server   goplay.IServer
 	listener net.Listener
 }
 
@@ -49,7 +51,7 @@ func Wait() {
 	instanceWaitGroup.Wait()
 }
 
-func Boot(i play.IServer) error {
+func Boot(i goplay.IServer) error {
 	var err error
 	var listener net.Listener
 	var gracefulSocket = getGracefulSocket(i.Info().Name)
@@ -96,7 +98,7 @@ func Shutdown(name string) {
 	}
 }
 
-func doRequest(s *play.Session, request *play.Request) (err error) {
+func doRequest(s *goplay.Session, request *goplay.Request) (err error) {
 	s.Server.Ctrl().AddTask()
 
 	defer func() {
@@ -106,14 +108,14 @@ func doRequest(s *play.Session, request *play.Request) (err error) {
 		}
 	}()
 
-	ctx := play.NewContextWithRequest(s, request)
+	ctx := goplay.NewContextWithRequest(s, request)
 
 	hook := s.Server.Hook()
 	if hook.OnRequest(ctx); ctx.Err != nil {
 		goto RESPONSE
 	}
 
-	ctx.Err = play.RunAction(ctx)
+	ctx.Err = goplay.RunAction(ctx)
 
 RESPONSE:
 	hook.OnResponse(ctx)

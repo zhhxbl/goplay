@@ -150,7 +150,7 @@ import (
 
 	src += fmt.Sprintf(`
 type query%s struct {
-	QueryInfo play.Query
+	QueryInfo goplay.Query
 }
 `, funcName)
 
@@ -180,7 +180,7 @@ func %s(c context.Context) *query%s {
 		for where, wherebool := range whereOr {
 			src += fmt.Sprintf(`
 func (q *query%s)%s%s%s(val interface{}) *query%s {
-	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, play.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:val})
+	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, goplay.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:val})
 	return q
 }
 `, funcName, where, formatUcfirstName(meta.Key.Name), cond, funcName, wherebool, meta.Key.Name, cond)
@@ -191,7 +191,7 @@ func (q *query%s)%s%s%s(val interface{}) *query%s {
 			for where, wherebool := range whereOr {
 				src += fmt.Sprintf(`
 func (q *query%s)%s%s%s(val interface{}) *query%s {
-	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, play.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:val})
+	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, goplay.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:val})
 	return q
 }
 `, funcName, where, ucfirst(vb.Name), cond, funcName, wherebool, vb.Name, cond)
@@ -204,7 +204,7 @@ func (q *query%s)%s%s%s(val interface{}) *query%s {
 		for where, wherebool := range whereOr {
 			src += fmt.Sprintf(`
 func (q *query%s)%s%s%s(v1 interface{}, v2 interface{}) *query%s {
-	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, play.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:[2]interface{}{v1, v2}})
+	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, goplay.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:[2]interface{}{v1, v2}})
 	return q
 }
 `, funcName, where, formatUcfirstName(meta.Key.Name), cond, funcName, wherebool, meta.Key.Name, cond)
@@ -215,7 +215,7 @@ func (q *query%s)%s%s%s(v1 interface{}, v2 interface{}) *query%s {
 			for where, wherebool := range whereOr {
 				src += fmt.Sprintf(`
 func (q *query%s)%s%s%s(v1 interface{}, v2 interface{}) *query%s {
-	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, play.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:[2]interface{}{v1, v2}})
+	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, goplay.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:[2]interface{}{v1, v2}})
 	return q
 }
 `, funcName, where, ucfirst(vb.Name), cond, funcName, wherebool, vb.Name, cond)
@@ -228,7 +228,7 @@ func (q *query%s)%s%s%s(v1 interface{}, v2 interface{}) *query%s {
 		for where, wherebool := range whereOr {
 			src += fmt.Sprintf(`
 func (q *query%s)%s%s%s(s []interface{}) *query%s {
-	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, play.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:s})
+	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, goplay.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:s})
 	return q
 }
 `, funcName, where, formatUcfirstName(meta.Key.Name), cond, funcName, wherebool, meta.Key.Name, cond)
@@ -239,7 +239,7 @@ func (q *query%s)%s%s%s(s []interface{}) *query%s {
 			for where, wherebool := range whereOr {
 				src += fmt.Sprintf(`
 func (q *query%s)%s%s%s(s []%s) *query%s {
-	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, play.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:s})
+	q.QueryInfo.Conditions = append(q.QueryInfo.Conditions, goplay.Condition{AndOr:%s, Field:"%s", Con:"%s", Val:s})
 	return q
 }
 `, funcName, where, ucfirst(vb.Name), cond, getGolangType(vb.Type), funcName, wherebool, vb.Name, cond)

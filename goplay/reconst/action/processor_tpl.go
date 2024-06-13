@@ -27,7 +27,7 @@ type %s struct {
 	Output struct {}
 }
 
-func (p *%s)Run(ctx *play.Context) (string, error) {
+func (p *%s)Run(ctx *goplay.Context) (string, error) {
 	// TODO
 	return "RC_NORMAL", nil
 }

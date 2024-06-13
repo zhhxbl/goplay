@@ -76,7 +76,7 @@ func genStruct(actionName string, input map[string]string, output map[string]str
 	}
 	src += "}\n\n"
 
-	src += "func " + structName + "(c play.Client, req " + structName + "Req, respond bool) (resp *" + structName + "Resp, err error) {\n"
+	src += "func " + structName + "(c goplay.Client, req " + structName + "Req, respond bool) (resp *" + structName + "Resp, err error) {\n"
 	src += fmt.Sprintf(`	var resByte []byte
 	if resByte, err = c.Call("%s", "%s", req, respond); err != nil {
 		return nil, err

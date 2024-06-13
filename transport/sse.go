@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
+	"github.com/zhhOceanfly/goplay"
 	"github.com/zhhOceanfly/goplay/library/golang/json"
 )
 
@@ -16,8 +17,8 @@ func NewSSETransport() *SseTransport {
 	return new(SseTransport)
 }
 
-func (p *SseTransport) Receive(c *play.Conn) (*play.Request, error) {
-	var request play.Request
+func (p *SseTransport) Receive(c *goplay.Conn) (*goplay.Request, error) {
+	var request goplay.Request
 	request.Respond = true
 	request.ActionName, request.Render = ParseHttpPath(c.Http.Request.URL.Path)
 	request.InputBinder = ParseHttpInput(c.Http.Request, 1024*4)
@@ -25,7 +26,7 @@ func (p *SseTransport) Receive(c *play.Conn) (*play.Request, error) {
 	return &request, nil
 }
 
-func (p *SseTransport) Response(c *play.Conn, res *play.Response) error {
+func (p *SseTransport) Response(c *goplay.Conn, res *goplay.Response) error {
 	var err error
 	var data []byte
 	var w = c.Http.ResponseWriter

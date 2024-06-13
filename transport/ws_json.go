@@ -14,8 +14,8 @@ func NewWsJsonTransport() *WsJsonTransport {
 	return new(WsJsonTransport)
 }
 
-func (m *WsJsonTransport) Receive(c *play.Conn) (*play.Request, error) {
-	var request play.Request
+func (m *WsJsonTransport) Receive(c *goplay.Conn) (*goplay.Request, error) {
+	var request goplay.Request
 	request.Respond = true
 	request.ActionName, request.Render = ParseHttpPath(c.Http.Request.URL.Path)
 
@@ -28,7 +28,7 @@ func (m *WsJsonTransport) Receive(c *play.Conn) (*play.Request, error) {
 	return &request, nil
 }
 
-func (m *WsJsonTransport) Response(c *play.Conn, res *play.Response) error {
+func (m *WsJsonTransport) Response(c *goplay.Conn, res *goplay.Response) error {
 	var err error
 	var data []byte
 	var messageType = c.Websocket.MessageType

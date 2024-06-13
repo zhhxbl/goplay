@@ -1,4 +1,4 @@
-package play
+package goplay
 
 import (
 	"encoding/json"

@@ -13,23 +13,23 @@ import (
 )
 
 type sseInstance struct {
-	info      play.InstanceInfo
-	hook      play.IServerHook
-	ctrl      *play.InstanceCtrl
-	transport play.ITransport
+	info      goplay.InstanceInfo
+	hook      goplay.IServerHook
+	ctrl      *goplay.InstanceCtrl
+	transport goplay.ITransport
 
 	tlsConfig  *tls.Config
 	httpServer http.Server
 }
 
-func NewSSEInstance(name string, addr string, transport play.ITransport, hook play.IServerHook) (*sseInstance, error) {
+func NewSSEInstance(name string, addr string, transport goplay.ITransport, hook goplay.IServerHook) (*sseInstance, error) {
 	if transport == nil {
 		return nil, errors.New("sse instance transport must not be nil")
 	}
 	if hook == nil {
 		return nil, errors.New("sse instance server hook must not be nil")
 	}
-	return &sseInstance{info: play.InstanceInfo{Name: name, Address: addr, Type: TypeSse}, transport: transport, hook: hook, ctrl: new(play.InstanceCtrl)}, nil
+	return &sseInstance{info: goplay.InstanceInfo{Name: name, Address: addr, Type: TypeSse}, transport: transport, hook: hook, ctrl: new(goplay.InstanceCtrl)}, nil
 }
 
 func (i *sseInstance) WithCertificate(cert tls.Certificate) *sseInstance {
@@ -43,7 +43,7 @@ func (i *sseInstance) WithCertificate(cert tls.Certificate) *sseInstance {
 
 func (i *sseInstance) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var sess = play.NewSession(r.Context(), nil, i)
+	var sess = goplay.NewSession(r.Context(), nil, i)
 
 	defer func() {
 		recover()
@@ -54,7 +54,7 @@ func (i *sseInstance) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess.Conn = new(play.Conn)
+	sess.Conn = new(goplay.Conn)
 	sess.Conn.Http.Request, sess.Conn.Http.ResponseWriter = r, w
 	i.accept(sess)
 }
@@ -67,7 +67,7 @@ func (i *sseInstance) update(r *http.Request) error {
 	return nil
 }
 
-func (i *sseInstance) accept(s *play.Session) {
+func (i *sseInstance) accept(s *goplay.Session) {
 	var err error
 	var w = s.Conn.Http.ResponseWriter
 
@@ -117,18 +117,18 @@ func (i *sseInstance) Close() {
 	i.ctrl.WaitTask()
 }
 
-func (i *sseInstance) Info() play.InstanceInfo {
+func (i *sseInstance) Info() goplay.InstanceInfo {
 	return i.info
 }
 
-func (i *sseInstance) Hook() play.IServerHook {
+func (i *sseInstance) Hook() goplay.IServerHook {
 	return i.hook
 }
 
-func (i *sseInstance) Transport() play.ITransport {
+func (i *sseInstance) Transport() goplay.ITransport {
 	return i.transport
 }
 
-func (i *sseInstance) Ctrl() *play.InstanceCtrl {
+func (i *sseInstance) Ctrl() *goplay.InstanceCtrl {
 	return i.ctrl
 }
