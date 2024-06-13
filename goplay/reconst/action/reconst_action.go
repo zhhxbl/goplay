@@ -2,14 +2,13 @@ package action
 
 import (
 	"fmt"
+	"github.com/leochen2038/play/goplay/reconst/env"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 var registerCode string
@@ -17,30 +16,18 @@ var packages = map[string]string{}
 var crontab = map[string]struct{}{}
 
 func ReconstAction() (err error) {
-	var emptyAction = true
 	actions, err := getActions(env.ProjectPath + "/assets/action")
-	if err != nil {
-		return err
-	}
-	registerCode = "func init() {\nsetBuildBasePath()\n"
+
+	registerCode = "func init() {\n"
 	registerCode += genRegisterCronCode(env.ProjectPath + "/crontab")
 	for _, action := range actions {
-		emptyAction = false
-		metaData := genActionMetaStruct(action.metaData)
-		registerCode += "\tplay.RegisterAction(\"" + action.name + "\", " + metaData + ", func()interface{}{return "
+		registerCode += "\tplay.RegisterAction(\"" + action.name + "\", " + "func()interface{}{return "
 		genNextProcessorCode(action.handlerList, &action)
 		registerCode = registerCode[:len(registerCode)-1] + "})\n"
 	}
-	registerCode += "}\n\n"
-	registerCode += `func setBuildBasePath() {
-	if _, file, _, ok := runtime.Caller(0); ok {
-		if strings.LastIndex(file, "/") > 0 {
-			play.BuildBasePath = file[:strings.LastIndex(file, "/")+1]
-		}
-	}
-}`
+	registerCode += "}"
 
-	if err = updateRegister(env.ProjectPath, env.FrameworkName, emptyAction); err != nil {
+	if err = updateRegister(env.ProjectPath, env.FrameworkName); err != nil {
 		return
 	}
 
@@ -50,18 +37,6 @@ func ReconstAction() (err error) {
 	//}
 
 	return
-}
-
-func genActionMetaStruct(metaData map[string]string) string {
-	var metaStruct string = `map[string]string{`
-	for k, v := range metaData {
-		metaStruct += fmt.Sprintf("\"%s\":\"%s\",", k, v)
-	}
-	if len(metaData) > 0 {
-		metaStruct = metaStruct[:len(metaStruct)-1]
-	}
-	metaStruct = metaStruct + "}"
-	return metaStruct
 }
 
 func genRegisterCronCode(path string) (registCode string) {
@@ -126,28 +101,26 @@ func genNextProcessorCode(proc *processorHandler, act *action) {
 	registerCode += ","
 }
 
-func updateRegister(project, frameworkName string, emptyAction bool) (err error) {
+func updateRegister(project, frameworkName string) (err error) {
 	var module string
 	if module, err = parseModuleName(project); err != nil {
 		return
 	}
 
 	src := "package main\n\n"
-	if len(crontab) > 0 || len(packages) > 0 || !emptyAction {
+	if len(crontab) > 0 || len(packages) > 0 {
 		src += "import (\n\t\"" + frameworkName + "\"\n"
 	}
-	for k := range crontab {
+	for k, _ := range crontab {
 		src += fmt.Sprintf("\t\"%s/%s\"\n", module, k)
 	}
 	for k, v := range packages {
 		src += fmt.Sprintf("\t%s \"%s/processor/%s\"\n", v, module, k)
 	}
-	src += "\"runtime\"\n"
-	src += "\"strings\"\n"
 	if len(packages) > 0 {
 		src += "\"unsafe\"\n"
 	}
-	if len(crontab) > 0 || len(packages) > 0 || !emptyAction {
+	if len(crontab) > 0 || len(packages) > 0 {
 		src += ")\n\n"
 	}
 

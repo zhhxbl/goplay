@@ -3,16 +3,17 @@ package play
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/leochen2038/play/library/etcd"
+	"github.com/robfig/cron/v3"
+	"io/ioutil"
 	"os"
 	"time"
-
-	"github.com/robfig/cron/v3"
 )
 
 var (
 	cronLastFileModTime int64
 	cronJobs            = make(map[string]*cronJobWrap, 8)
-	cronRunner          = cron.New()
+	cronRunner          *cron.Cron
 )
 
 type CronJob cron.Job
@@ -34,8 +35,9 @@ func (j *cronJobWrap) Run() {
 }
 
 func init() {
+	cronRunner = cron.New()
 	go func() {
-		time.Sleep(3 * time.Second)
+		time.Sleep(1 * time.Second)
 		cronRunner.Start()
 	}()
 }
@@ -45,19 +47,41 @@ func RegisterCronJob(name string, new func() CronJob) {
 }
 
 func CronStop() {
-	<-cronRunner.Stop().Done()
+	_ = <-cronRunner.Stop().Done()
 }
 
-func CronStart() {
-	cronRunner.Start()
+func CronStartWithEtcd(etcd *etcd.EtcdAgent, key string, tryLocalFile string) {
+	if data, err := etcd.GetEtcdValue(key); err != nil {
+		if tryLocalFile != "" {
+			if data, err = ioutil.ReadFile(tryLocalFile); err == nil {
+				cronUpdate(data)
+			}
+		}
+	} else {
+		if err = cronUpdate(data); err == nil && tryLocalFile != "" {
+			ioutil.WriteFile(tryLocalFile, data, 0644)
+		}
+	}
+
+	etcd.StartWatchChange(key, func(data []byte) (err error) {
+		if err = cronUpdate(data); err == nil && tryLocalFile != "" {
+			err = ioutil.WriteFile(tryLocalFile, data, 0644)
+		}
+		return
+	})
 }
 
-func CronStartWithFile(filename string, refashTickTime time.Duration) (err error) {
-	err = getConfigFromFile(filename)
+func CronStartWithFile(filename string, refashTickTime time.Duration) {
+	if data, err := ioutil.ReadFile(filename); err == nil {
+		cronUpdate(data)
+	}
+
 	if refashTickTime > 0 {
+		if fileinfo, err := os.Stat(filename); err == nil {
+			cronLastFileModTime = fileinfo.ModTime().Unix()
+		}
 		startCronWatchFileChange(filename, refashTickTime)
 	}
-	return
 }
 
 func startCronWatchFileChange(filename string, refashTickTime time.Duration) {
@@ -69,37 +93,26 @@ func startCronWatchFileChange(filename string, refashTickTime time.Duration) {
 			time.Sleep(5 * time.Second)
 			startCronWatchFileChange(filename, refashTickTime)
 		}()
-
-		var refashTicker = time.NewTicker(refashTickTime * time.Second)
-		for range refashTicker.C {
-			if err := getConfigFromFile(filename); err != nil {
-				fmt.Println("watch cron file error:", err)
-			}
-		}
+		cronWatchFileChange(filename, refashTickTime)
 	}()
 }
 
-func getConfigFromFile(filename string) (err error) {
+func cronWatchFileChange(filename string, refashTickTime time.Duration) {
+	var err error
 	var fileinfo os.FileInfo
-	if fileinfo, err = os.Stat(filename); err != nil {
-		return
-	}
-	if fileinfo.ModTime().Unix() <= cronLastFileModTime {
-		return
-	}
+	var refashTicker = time.NewTicker(refashTickTime * time.Second)
 
-	var data []byte
-	if data, err = os.ReadFile(filename); err != nil {
-		return
+	for {
+		select {
+		case <-refashTicker.C:
+			if fileinfo, err = os.Stat(filename); err == nil && fileinfo.ModTime().Unix() > cronLastFileModTime {
+				cronLastFileModTime = fileinfo.ModTime().Unix()
+				if data, err := ioutil.ReadFile(filename); err == nil {
+					cronUpdate(data)
+				}
+			}
+		}
 	}
-
-	var config map[string]string
-	if err = json.Unmarshal(data, &config); err != nil {
-		return
-	}
-
-	cronLastFileModTime = fileinfo.ModTime().Unix()
-	return _cronUpdate(config)
 }
 
 func cronRemoveJob(job *cronJobWrap) {
@@ -115,20 +128,16 @@ func cronAddJob(job *cronJobWrap, newSpec string) {
 	job.spec = newSpec
 }
 
-func CronUpdate(config []CronConfig) (err error) {
-	var c map[string]string = make(map[string]string, len(config))
-	for _, job := range config {
-		c[job.Name] = job.Spec
+func cronUpdate(configByte []byte) (err error) {
+	var config map[string]string
+	if err = json.Unmarshal(configByte, &config); err != nil {
+		return
 	}
 
-	return _cronUpdate(c)
-}
-
-func _cronUpdate(config map[string]string) (err error) {
 	for _, job := range cronJobs {
 		if job.runEntryId > 0 {
 			if newSpec, ok := config[job.name]; !ok {
-				cronRemoveJob(job)
+				cronRunner.Remove(job.runEntryId)
 			} else if newSpec != job.spec {
 				cronRemoveJob(job)
 				cronAddJob(job, newSpec)
@@ -136,17 +145,11 @@ func _cronUpdate(config map[string]string) (err error) {
 			delete(config, job.name)
 		}
 	}
-	var missJobs []string
+
 	for name, spec := range config {
 		if job, ok := cronJobs[name]; ok {
 			cronAddJob(job, spec)
-		} else {
-			missJobs = append(missJobs, name)
 		}
-	}
-
-	if len(missJobs) > 0 {
-		err = fmt.Errorf("miss jobs: %v", missJobs)
 	}
 	return
 }

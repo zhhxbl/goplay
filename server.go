@@ -1,33 +1,18 @@
 package play
 
 import (
+	"github.com/gorilla/websocket"
 	"net"
 	"net/http"
+	"reflect"
 	"sync"
-	"time"
-
-	"github.com/gorilla/websocket"
-	"github.com/quic-go/quic-go"
-	"github.com/zhhOceanfly/goplay/codec/binders"
-)
-
-const (
-	SERVER_TYPE_HTTP  = 1
-	SERVER_TYPE_TCP   = 2
-	SERVER_TYPE_SSE   = 3
-	SERVER_TYPE_WS    = 4
-	SERVER_TYPE_H2C   = 5
-	SERVER_TYPE_QUIC  = 6
-	SERVER_TYPE_HTTP3 = 7
 )
 
 type IServerHook interface {
-	OnBoot(server IServer)
-	OnShutdown(server IServer)
 	OnConnect(sess *Session, err error)
 	OnClose(sess *Session, err error)
 
-	OnRequest(ctx *Context) error
+	OnRequest(ctx *Context)
 	OnResponse(ctx *Context)
 	OnFinish(ctx *Context)
 }
@@ -36,16 +21,21 @@ type IServer interface {
 	Info() InstanceInfo
 	Ctrl() *InstanceCtrl
 	Hook() IServerHook
-	Packer() IPacker
-	Transport(*Conn, []byte) error
-	Network() string
-	Run(net.Listener, net.PacketConn) error
+	Transport() ITransport
+
+	Run(net.Listener) error
 	Close()
 }
 
-type IPacker interface {
+type Binder interface {
+	Bind(v reflect.Value) error
+	Get(key string) (interface{}, error)
+	Set(key string, val interface{})
+}
+
+type ITransport interface {
 	Receive(c *Conn) (*Request, error)
-	Pack(c *Conn, res *Response) ([]byte, error)
+	Response(c *Conn, res *Response) error
 }
 
 type InstanceInfo struct {
@@ -69,7 +59,6 @@ func (c *InstanceCtrl) WaitTask() {
 }
 
 type Conn struct {
-	Type    int
 	IsClose bool
 	Http    struct {
 		Request        *http.Request
@@ -85,32 +74,26 @@ type Conn struct {
 		Surplus []byte
 		Conn    net.Conn
 	}
-	Quic struct {
-		Version byte
-		Conn    quic.Connection
-		Stream  quic.Stream
-	}
 }
 
 type Request struct {
 	Version     byte
-	RenderName  string
-	CallerId    int
+	Render      string
+	Caller      string
 	TagId       int
 	TraceId     string
 	SpanId      []byte
-	NonRespond  bool
+	Respond     bool
 	ActionName  string
-	Attach      []byte
-	Deadline    time.Time
-	InputBinder binders.Binder
+	InputBinder Binder
 }
 
 type Response struct {
-	Version    byte
-	TraceId    string
-	Template   string
-	RenderName string
-	Error      error
-	Output     Output
+	ErrorCode int
+	TagId     int
+	Render    string
+	TraceId   string
+	SpanId    []byte
+	Template  string
+	Output    Output
 }

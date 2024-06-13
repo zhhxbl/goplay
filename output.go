@@ -1,26 +1,28 @@
 package play
 
-type Output struct {
+type Output interface {
+	Get(key string) interface{}
+	Set(key string, val interface{})
+	All() interface{}
+}
+
+type KvOutput struct {
 	data map[string]interface{}
 }
 
-func NewOutput() *Output {
-	return &Output{}
-}
-
-func (o *Output) Get(key string) interface{} {
+func (o *KvOutput) Get(key string) interface{} {
 	if key != "" {
-		val := o.data[key]
+		val, _ := o.data[key]
 		return val
 	}
 	return o.data
 }
 
-func (o *Output) All() map[string]interface{} {
+func (o *KvOutput) All() interface{} {
 	return o.data
 }
 
-func (o *Output) Set(key string, val interface{}) {
+func (o *KvOutput) Set(key string, val interface{}) {
 	if o.data == nil {
 		o.data = make(map[string]interface{}, 10)
 	}

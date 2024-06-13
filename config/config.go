@@ -1,9 +1,7 @@
 package config
 
 import (
-	"errors"
-
-	"github.com/zhhOceanfly/goplay"
+	"github.com/leochen2038/play"
 )
 
 type Parser interface {
@@ -14,17 +12,10 @@ type config struct {
 	parser Parser
 }
 
-type emptyParser struct {
-}
+var configInstance *config
 
-func (emptyParser) GetVal(key string) (val interface{}, err error) {
-	return nil, errors.New("empty parser, call config.InitConfig() first")
-}
-
-var configInstance *config = &config{parser: emptyParser{}}
-
-func InitConfig(parser Parser) {
-	configInstance.parser = parser
+func InitConfig(parser interface{ Parser }) {
+	configInstance = &config{parser: parser}
 }
 
 func Bool(key string) (val bool, err error) {

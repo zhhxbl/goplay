@@ -2,22 +2,21 @@ package play
 
 import (
 	"context"
-
 	"github.com/google/uuid"
 )
 
 type Session struct {
 	SessId    string
-	User      interface{}
+	UInfo     interface{}
 	Conn      *Conn
 	Server    IServer
 	ctx       context.Context
 	ctxCancel context.CancelFunc
 }
 
-func NewSession(cxt context.Context, server IServer) *Session {
+func NewSession(cxt context.Context, c *Conn, server IServer) *Session {
 	sess := &Session{
-		Conn:   &Conn{Type: server.Info().Type},
+		Conn:   c,
 		SessId: uuid.New().String(),
 		Server: server,
 	}
@@ -27,14 +26,9 @@ func NewSession(cxt context.Context, server IServer) *Session {
 
 func (s *Session) Write(res *Response) (err error) {
 	if res != nil {
-		var data []byte
-		if data, err = s.Server.Packer().Pack(s.Conn, res); err == nil && len(data) > 0 {
-			err = s.Server.Transport(s.Conn, data)
+		if err = s.Server.Transport().Response(s.Conn, res); err != nil {
+			s.ctxCancel()
 		}
-	}
-
-	if err != nil {
-		s.ctxCancel()
 	}
 	return err
 }

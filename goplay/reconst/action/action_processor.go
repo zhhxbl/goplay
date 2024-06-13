@@ -4,11 +4,10 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/leochen2038/play/goplay/reconst/env"
 	"io/ioutil"
 	"os"
 	"strings"
-
-	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 func checkProcessorFile(name string) (err error) {
@@ -21,7 +20,7 @@ func checkProcessorFile(name string) (err error) {
 	path := env.ProjectPath + "/processor/" + v[:idx]
 
 	pacekageNme := path[strings.LastIndex(path, "/")+1:]
-	frameworkPath := "github.com/zhhOceanfly/goplay"
+	frameworkPath := "github.com/leochen2038/play"
 	funcName := v[idx+1:]
 	_, err = os.Stat(file)
 	if os.IsNotExist(err) {
@@ -48,9 +47,9 @@ func parseModuleName(path string) (string, error) {
 		return "", errors.New("can not find go.mod in project")
 	}
 
-	file, _ := os.Open(modPath)
+	file, err := os.Open(modPath)
 	br := bufio.NewReader(file)
-	data, _, _ := br.ReadLine()
+	data, _, err := br.ReadLine()
 
 	return strings.Split(string(data), " ")[1], nil
 }

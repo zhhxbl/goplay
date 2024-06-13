@@ -3,37 +3,36 @@ package mongodb
 import (
 	"context"
 	"fmt"
-	"reflect"
-	"strings"
-	"sync"
-	"time"
-
-	"github.com/zhhOceanfly/goplay"
-	"github.com/zhhOceanfly/goplay/database"
+	"github.com/leochen2038/play"
+	"github.com/leochen2038/play/config"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"reflect"
+	"strings"
+	"sync"
+	"time"
 )
 
 var dbconnects sync.Map
 
-func GetConnect(ctx context.Context, router string) (*mongo.Client, error) {
+func getConnect(ctx context.Context, router string) (*mongo.Client, error) {
 	var err error
 	var mongoURI string
 	var dest string
 	var dbconnect *mongo.Client
 
-	if dest = database.GetDest(router); dest == "" {
-		return nil, fmt.Errorf("can not find mongodb config: " + router)
+	if dest, err = config.String(router); err != nil {
+		return nil, fmt.Errorf("can not find mongodb config:" + router)
 	}
 	if connect, _ := dbconnects.Load(dest); connect == nil {
 		scheme := "mongodb"
-		r := database.GetRouter(router)
-		if r.Username == "" {
-			mongoURI = scheme + "://" + r.Host + ":" + r.Port
+		username, password, host, _ := play.DecodeHost(scheme, dest)
+		if username == "" {
+			mongoURI = scheme + "://" + host
 		} else {
-			mongoURI = scheme + "://" + r.Username + ":" + r.Password + "@" + r.Host + ":" + r.Port
+			mongoURI = scheme + "://" + username + ":" + password + "@" + host
 		}
 
 		if dbconnect, err = mongo.NewClient(options.Client().ApplyURI(mongoURI).SetMaxPoolSize(1024)); err != nil {
@@ -56,7 +55,7 @@ func GetConnect(ctx context.Context, router string) (*mongo.Client, error) {
 
 func getCollection(query *play.Query) (collection *mongo.Collection, err error) {
 	var client *mongo.Client
-	if client, err = GetConnect(context.Background(), query.Router); err != nil {
+	if client, err = getConnect(context.Background(), query.Router); err != nil {
 		return nil, err
 	}
 	collection = client.Database(query.DBName).Collection(query.Table)
@@ -274,7 +273,7 @@ func findOptions(query *play.Query) *options.FindOptions {
 			if query.Order[i][1] == "desc" {
 				sort = -1
 			}
-			sortFields = append(sortFields, bson.E{Key: query.Order[i][0], Value: sort})
+			sortFields = append(sortFields, bson.E{query.Order[i][0], sort})
 		}
 		options.SetSort(sortFields)
 	}
@@ -294,7 +293,7 @@ func findOneOptions(query *play.Query) *options.FindOneOptions {
 			if query.Order[i][1] == "desc" {
 				sort = -1
 			}
-			sortFields = append(sortFields, bson.E{Key: query.Order[i][0], Value: sort})
+			sortFields = append(sortFields, bson.E{query.Order[i][0], sort})
 		}
 		options.SetSort(sortFields)
 	}
@@ -327,11 +326,11 @@ func fetch(query *play.Query) bson.M {
 				if reflect.TypeOf(cond.Val).String() == "[]interface {}" {
 					list := make([]primitive.ObjectID, 0, 1)
 					for _, v := range cond.Val.([]interface{}) {
-						switch v := v.(type) {
+						switch v.(type) {
 						case primitive.ObjectID:
-							list = append(list, v)
+							list = append(list, v.(primitive.ObjectID))
 						case string:
-							obj, _ := primitive.ObjectIDFromHex(v)
+							obj, _ := primitive.ObjectIDFromHex(v.(string))
 							list = append(list, obj)
 						}
 					}
@@ -351,11 +350,11 @@ func fetch(query *play.Query) bson.M {
 				if reflect.TypeOf(cond.Val).String() == "[]interface {}" {
 					list := make([]primitive.ObjectID, 0, 1)
 					for _, v := range cond.Val.([]interface{}) {
-						switch v := v.(type) {
+						switch v.(type) {
 						case primitive.ObjectID:
-							list = append(list, v)
+							list = append(list, v.(primitive.ObjectID))
 						case string:
-							obj, _ := primitive.ObjectIDFromHex(v)
+							obj, _ := primitive.ObjectIDFromHex(v.(string))
 							list = append(list, obj)
 						}
 					}
@@ -368,6 +367,7 @@ func fetch(query *play.Query) bson.M {
 			}
 		case "Like":
 			regex := (cond.Val).(string)
+			strings.ReplaceAll(regex, "%", ".*")
 			fieldCon["$regex"] = strings.ReplaceAll(regex, "%", ".*")
 			fieldCon["$options"] = "i"
 		}
