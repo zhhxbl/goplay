@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/zhhOceanfly/play/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 var registerCode string

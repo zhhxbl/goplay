@@ -3,7 +3,7 @@ package initProject
 import (
 	"fmt"
 
-	"github.com/zhhOceanfly/play/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 func getHookTpl() string {

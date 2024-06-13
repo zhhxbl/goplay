@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/zhhOceanfly/play"
+	"github.com/zhhOceanfly/goplay"
 )
 
 var noDeadline time.Time

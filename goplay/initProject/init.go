@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/zhhOceanfly/play/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 func InitProject(upgrade bool) (err error) {

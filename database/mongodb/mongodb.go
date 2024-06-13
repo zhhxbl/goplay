@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/zhhOceanfly/play"
-	"github.com/zhhOceanfly/play/database"
+	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhOceanfly/goplay/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

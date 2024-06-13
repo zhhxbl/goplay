@@ -7,8 +7,8 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/zhhOceanfly/play"
-	"github.com/zhhOceanfly/play/codec/protos/golang/json"
+	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhOceanfly/goplay/codec/protos/golang/json"
 )
 
 // request  protocol v3

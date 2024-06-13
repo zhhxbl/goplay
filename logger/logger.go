@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/zhhOceanfly/play/codec/protos/golang/json"
+	"github.com/zhhOceanfly/goplay/codec/protos/golang/json"
 )
 
 const LEVEL_DEBUG = 3

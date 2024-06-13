@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/zhhOceanfly/play/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 func checkProcessorFile(name string) (err error) {
@@ -21,7 +21,7 @@ func checkProcessorFile(name string) (err error) {
 	path := env.ProjectPath + "/processor/" + v[:idx]
 
 	pacekageNme := path[strings.LastIndex(path, "/")+1:]
-	frameworkPath := "github.com/zhhOceanfly/play"
+	frameworkPath := "github.com/zhhOceanfly/goplay"
 	funcName := v[idx+1:]
 	_, err = os.Stat(file)
 	if os.IsNotExist(err) {

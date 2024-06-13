@@ -13,7 +13,7 @@ import (
 
 	"golang.org/x/net/http2"
 
-	"github.com/zhhOceanfly/play/codec/protos/golang/json"
+	"github.com/zhhOceanfly/goplay/codec/protos/golang/json"
 )
 
 var H2cWithJson = &h2cWithJson{router: make(map[string]string)}

@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/zhhOceanfly/play/goplay/env"
-	"github.com/zhhOceanfly/play/goplay/reconst/action"
-	"github.com/zhhOceanfly/play/goplay/reconst/meta"
+	"github.com/zhhOceanfly/goplay/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/reconst/action"
+	"github.com/zhhOceanfly/goplay/goplay/reconst/meta"
 )
 
 func ReconstProject() (err error) {

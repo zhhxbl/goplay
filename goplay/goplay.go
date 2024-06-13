@@ -5,10 +5,10 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/zhhOceanfly/play/goplay/env"
-	"github.com/zhhOceanfly/play/goplay/gendoc"
-	"github.com/zhhOceanfly/play/goplay/initProject"
-	"github.com/zhhOceanfly/play/goplay/reconst"
+	"github.com/zhhOceanfly/goplay/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/gendoc"
+	"github.com/zhhOceanfly/goplay/goplay/initProject"
+	"github.com/zhhOceanfly/goplay/goplay/reconst"
 )
 
 var command string
@@ -18,8 +18,8 @@ var command string
 // 多包同名，可以在import进行引用别名
 func init() {
 	env.FrameworkVer = "v0.7.6"
-	env.FrameworkName = "github.com/zhhOceanfly/play"
-	// commandLine.StringVar(&env.FrameworkName, "f", "github.com/zhhOceanfly/play", "framework module")
+	env.FrameworkName = "github.com/zhhOceanfly/goplay"
+	// commandLine.StringVar(&env.FrameworkName, "f", "github.com/zhhOceanfly/goplay", "framework module")
 	// commandLine.Parse(os.Args[2:])
 	// commandLine.Parse(os.Args[2:])
 

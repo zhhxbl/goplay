@@ -5,8 +5,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/zhhOceanfly/play/codec/protos/golang/json"
-	"github.com/zhhOceanfly/play/codec/protos/pproto"
+	"github.com/zhhOceanfly/goplay/codec/protos/golang/json"
+	"github.com/zhhOceanfly/goplay/codec/protos/pproto"
 )
 
 type PlaySocket struct {

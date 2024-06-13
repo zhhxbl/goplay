@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/zhhOceanfly/play/codec/protos/pproto"
+	"github.com/zhhOceanfly/goplay/codec/protos/pproto"
 	"golang.org/x/net/http2"
 
-	"github.com/zhhOceanfly/play/codec/protos/golang/json"
+	"github.com/zhhOceanfly/goplay/codec/protos/golang/json"
 )
 
 var h2cPProtoRoute sync.Map

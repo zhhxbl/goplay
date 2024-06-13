@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/zhhOceanfly/play"
-	"github.com/zhhOceanfly/play/codec/binders"
-	"github.com/zhhOceanfly/play/codec/renders"
+	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhOceanfly/goplay/codec/binders"
+	"github.com/zhhOceanfly/goplay/codec/renders"
 )
 
 type JsonPacker struct {

@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/zhhOceanfly/play"
+	"github.com/zhhOceanfly/goplay"
 )
 
 var sdkDocument = fmt.Sprintf(`
@@ -17,7 +17,7 @@ package {{packageName}}
 import (
 	"context"
 	"errors"
-	"github.com/zhhOceanfly/play"
+	"github.com/zhhOceanfly/goplay"
 )
 
 type CommonRsp struct {

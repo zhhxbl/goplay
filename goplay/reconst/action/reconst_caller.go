@@ -10,7 +10,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/zhhOceanfly/play/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 func genCallerCode(actions map[string]action) error {
@@ -49,7 +49,7 @@ func genFile(src string) (err error) {
 
 func genHeader() string {
 	src := "package callers\n\n"
-	src += `import "github.com/zhhOceanfly/play"` + "\n\n"
+	src += `import "github.com/zhhOceanfly/goplay"` + "\n\n"
 	return src
 }
 

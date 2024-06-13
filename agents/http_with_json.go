@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/zhhOceanfly/play/codec/protos/golang/json"
+	"github.com/zhhOceanfly/goplay/codec/protos/golang/json"
 )
 
 var HttpWithJson = &httpWithJson{router: make(map[string]string)}

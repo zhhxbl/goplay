@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/zhhOceanfly/play"
+	"github.com/zhhOceanfly/goplay"
 )
 
 var mdDocument = `# 接口目录

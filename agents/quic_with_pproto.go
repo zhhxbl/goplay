@@ -8,9 +8,9 @@ import (
 	"sync"
 
 	"github.com/quic-go/quic-go"
-	"github.com/zhhOceanfly/play"
-	"github.com/zhhOceanfly/play/codec/protos/golang/json"
-	"github.com/zhhOceanfly/play/codec/protos/pproto"
+	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhOceanfly/goplay/codec/protos/golang/json"
+	"github.com/zhhOceanfly/goplay/codec/protos/pproto"
 )
 
 var callerId int = 0

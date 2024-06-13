@@ -12,7 +12,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/zhhOceanfly/play/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 type Meta struct {

@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/zhhOceanfly/play/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 func GenDoc() error {

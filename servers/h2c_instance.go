@@ -10,8 +10,8 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/zhhOceanfly/play"
-	"github.com/zhhOceanfly/play/packers"
+	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhOceanfly/goplay/packers"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )

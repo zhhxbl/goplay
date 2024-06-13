@@ -15,7 +15,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/zhhOceanfly/play"
+	"github.com/zhhOceanfly/goplay"
 	"golang.org/x/sync/errgroup"
 )
 

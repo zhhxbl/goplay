@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/zhhOceanfly/play"
-	"github.com/zhhOceanfly/play/codec/binders"
-	"github.com/zhhOceanfly/play/codec/renders"
+	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhOceanfly/goplay/codec/binders"
+	"github.com/zhhOceanfly/goplay/codec/renders"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"

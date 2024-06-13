@@ -1,6 +1,6 @@
 package renders
 
-import "github.com/zhhOceanfly/play/codec/protos/golang/json"
+import "github.com/zhhOceanfly/goplay/codec/protos/golang/json"
 
 var jRender = &jsonRender{}
 

@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/zhhOceanfly/play"
-	"github.com/zhhOceanfly/play/packers"
+	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhOceanfly/goplay/packers"
 )
 
 type sseInstance struct {

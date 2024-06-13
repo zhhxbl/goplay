@@ -3,7 +3,7 @@ package config
 import (
 	"errors"
 
-	"github.com/zhhOceanfly/play"
+	"github.com/zhhOceanfly/goplay"
 )
 
 type Parser interface {

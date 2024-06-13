@@ -3,7 +3,7 @@ package gendoc
 import (
 	"fmt"
 
-	"github.com/zhhOceanfly/play/goplay/env"
+	"github.com/zhhOceanfly/goplay/goplay/env"
 )
 
 func getGenTpl() string {
@@ -12,7 +12,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/zhhOceanfly/play"
+	"github.com/zhhOceanfly/goplay"
 	"io/ioutil"
 	"os"
 	"regexp"
