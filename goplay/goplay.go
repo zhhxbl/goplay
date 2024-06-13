@@ -4,19 +4,20 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/leochen2038/play/goplay/initProject"
-	"github.com/leochen2038/play/goplay/reconst"
-	"github.com/leochen2038/play/goplay/reconst/env"
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/zhhOceanfly/goplay/goplay/initProject"
+	"github.com/zhhOceanfly/goplay/goplay/reconst"
+	"github.com/zhhOceanfly/goplay/goplay/reconst/env"
 )
 
 var command string
 
 // 多包同名，可以在import进行引用别名
 func init() {
-	env.FrameworkName = "github.com/leochen2038/play"
+	env.FrameworkName = "github.com/zhhOceanfly/goplay"
 	env.FrameworkVer = "v0.6.8"
 
 	if len(os.Args) < 2 {

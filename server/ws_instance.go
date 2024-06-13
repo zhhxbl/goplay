@@ -5,11 +5,12 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/gorilla/websocket"
-	"github.com/leochen2038/play"
 	"net"
 	"net/http"
 	"runtime/debug"
+
+	"github.com/gorilla/websocket"
+	"github.com/leochen2038/play"
 )
 
 var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {

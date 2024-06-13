@@ -1,9 +1,5 @@
 package config
 
-import (
-	"github.com/leochen2038/play"
-)
-
 type Parser interface {
 	GetVal(key string) (val interface{}, err error)
 }

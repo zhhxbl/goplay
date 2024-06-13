@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/leochen2038/play/goplay/reconst/env"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/zhhOceanfly/goplay/goplay/reconst/env"
 )
 
 func checkProcessorFile(name string) (err error) {
@@ -20,7 +21,7 @@ func checkProcessorFile(name string) (err error) {
 	path := env.ProjectPath + "/processor/" + v[:idx]
 
 	pacekageNme := path[strings.LastIndex(path, "/")+1:]
-	frameworkPath := "github.com/leochen2038/play"
+	frameworkPath := "github.com/zhhOceanfly/goplay"
 	funcName := v[idx+1:]
 	_, err = os.Stat(file)
 	if os.IsNotExist(err) {

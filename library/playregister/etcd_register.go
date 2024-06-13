@@ -3,14 +3,14 @@ package playregister
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/leochen2038/play"
-	"github.com/leochen2038/play/config"
-	"github.com/leochen2038/play/library/cache"
-	"github.com/leochen2038/play/library/etcd"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
+
+	"github.com/zhhOceanfly/goplay/config"
+	"github.com/zhhOceanfly/goplay/library/cache"
+	"github.com/zhhOceanfly/goplay/library/etcd"
 )
 
 var (

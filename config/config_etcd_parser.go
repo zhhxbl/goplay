@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/leochen2038/play/library/etcd"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/zhhOceanfly/goplay/library/etcd"
 )
 
 type EtcdParser struct {

@@ -3,8 +3,8 @@ package transport
 import (
 	"github.com/gorilla/websocket"
 	"github.com/leochen2038/play"
-	"github.com/leochen2038/play/binder"
-	"github.com/leochen2038/play/library/golang/json"
+	"github.com/zhhOceanfly/goplay/binder"
+	"github.com/zhhOceanfly/goplay/library/golang/json"
 )
 
 type WsJsonTransport struct {

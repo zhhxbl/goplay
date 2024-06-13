@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/leochen2038/play"
-	"github.com/leochen2038/play/config"
 	"reflect"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/zhhOceanfly/goplay/config"
 )
 
 var dbconnects sync.Map
