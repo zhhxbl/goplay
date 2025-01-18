@@ -1,14 +1,13 @@
-package goplay
+package play
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/leochen2038/play/middleware/etcd"
+	"github.com/robfig/cron/v3"
 	"io/ioutil"
 	"os"
 	"time"
-
-	"github.com/robfig/cron/v3"
-	"github.com/zhhxbl/goplay/library/etcd"
 )
 
 var (

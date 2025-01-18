@@ -1,17 +1,16 @@
-package goplayregister
+package playregister
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/leochen2038/play"
+	"github.com/leochen2038/play/config"
+	"github.com/leochen2038/play/middleware/cache"
+	"github.com/leochen2038/play/middleware/etcd"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
-
-	"github.com/zhhxbl/goplay"
-	"github.com/zhhxbl/goplay/config"
-	"github.com/zhhxbl/goplay/library/cache"
-	"github.com/zhhxbl/goplay/library/etcd"
 )
 
 var (
@@ -47,20 +46,20 @@ func EtcdWithArgs(configKey, runningKey, crontabKey string, endpoints []string) 
 	}
 
 	// step 1. 获取配置信息
-	var configParser config.Parser
+	var configParser play.Parser
 	if configParser, err = config.NewEtcdParser(etcdAgent, configKey); err != nil {
 		return
 	}
 	config.InitConfig(configParser)
 
 	// step 2. 注册运行时状态
-	intranetIp = goplay.GetIntranetIp().String()
+	intranetIp = play.GetIntranetIp().String()
 	exePath, _ = os.Executable()
 	socketListen, _ = config.String("listen.socket")
 	httpListen, _ = config.String("listen.http")
 
 	// step 3. 开始定时任务
-	goplay.CronStartWithEtcd(etcdAgent, crontabKey, exePath+".cron")
+	play.CronStartWithEtcd(etcdAgent, crontabKey, exePath+".cron")
 
 	// step 4. 初始化cache
 	if appName, _ := config.String("appName"); appName != "" {
@@ -95,7 +94,7 @@ func getEtcdKeyAndEndpoints(configUrl string) (configKey, runningKey, crontabKey
 	var responseByte []byte
 	var responseMap map[string]interface{}
 
-	ip = goplay.GetIntranetIp().String()
+	ip = play.GetIntranetIp().String()
 	if path, err = os.Executable(); err != nil {
 		return
 	}

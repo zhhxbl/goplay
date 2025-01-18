@@ -3,9 +3,8 @@ package cache
 import (
 	"encoding/json"
 	"errors"
+	"github.com/leochen2038/play/middleware/etcd"
 	"strings"
-
-	"github.com/zhhxbl/goplay/library/etcd"
 )
 
 type cacheNode struct {

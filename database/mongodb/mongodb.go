@@ -2,34 +2,29 @@ package mongodb
 
 import (
 	"context"
-	"fmt"
-	"reflect"
-	"strings"
-	"sync"
-	"time"
-
-	"github.com/zhhxbl/goplay"
-	"github.com/zhhxbl/goplay/config"
+	"errors"
+	"github.com/leochen2038/play"
+	"github.com/leochen2038/play/config"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"reflect"
+	"strings"
+	"time"
 )
 
-var dbconnects sync.Map
+var dbconnect *mongo.Client = nil
+var connectingHost string
 
-func getConnect(ctx context.Context, router string) (*mongo.Client, error) {
+func getConnect(dest string) (*mongo.Client, error) {
 	var err error
 	var mongoURI string
-	var dest string
-	var dbconnect *mongo.Client
 
-	if dest, err = config.String(router); err != nil {
-		return nil, fmt.Errorf("can not find mongodb config:" + router)
-	}
-	if connect, _ := dbconnects.Load(dest); connect == nil {
+	if dbconnect == nil || connectingHost != dest {
+		ctx := context.Background()
 		scheme := "mongodb"
-		username, password, host, _ := goplay.DecodeHost(scheme, dest)
+		username, password, host, _ := play.DecodeHost(scheme, dest)
 		if username == "" {
 			mongoURI = scheme + "://" + host
 		} else {
@@ -39,31 +34,29 @@ func getConnect(ctx context.Context, router string) (*mongo.Client, error) {
 		if dbconnect, err = mongo.NewClient(options.Client().ApplyURI(mongoURI).SetMaxPoolSize(1024)); err != nil {
 			return nil, err
 		}
-
 		if err = dbconnect.Connect(ctx); err != nil {
 			return nil, err
 		}
 
-		if connect, ok := dbconnects.LoadOrStore(dest, dbconnect); ok {
-			return connect.(*mongo.Client), nil
-		}
-
-		return dbconnect, nil
-	} else {
-		return connect.(*mongo.Client), nil
+		connectingHost = dest
 	}
+	return dbconnect, nil
 }
 
-func getCollection(query *goplay.Query) (collection *mongo.Collection, err error) {
+func getCollection(query *play.Query) (collection *mongo.Collection, err error) {
 	var client *mongo.Client
-	if client, err = getConnect(context.Background(), query.Router); err != nil {
-		return nil, err
+	if destStr, err := config.String(query.Router); err != nil {
+		return nil, errors.New("unable find dest:" + query.Router)
+	} else {
+		if client, err = getConnect(destStr); err != nil {
+			return nil, err
+		}
+		collection = client.Database(query.DBName).Collection(query.Table)
 	}
-	collection = client.Database(query.DBName).Collection(query.Table)
 	return
 }
 
-func GetList(dest interface{}, query *goplay.Query) (err error) {
+func GetList(dest interface{}, query *play.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
@@ -72,18 +65,20 @@ func GetList(dest interface{}, query *goplay.Query) (err error) {
 	var cursor *mongo.Cursor
 	filter := fetch(query)
 	options := findOptions(query)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancelFunc()
 
-	if cursor, err = collection.Find(query.Context, filter, options); err != nil {
+	if cursor, err = collection.Find(ctx, filter, options); err != nil {
 		return
 	}
 
 	defer cursor.Close(context.Background())
-	err = cursor.All(query.Context, dest)
+	err = cursor.All(ctx, dest)
 
 	return
 }
 
-func GetOne(dest interface{}, query *goplay.Query) (err error) {
+func GetOne(dest interface{}, query *play.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
@@ -91,15 +86,17 @@ func GetOne(dest interface{}, query *goplay.Query) (err error) {
 
 	filter := fetch(query)
 	options := findOneOptions(query)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancelFunc()
 
-	err = collection.FindOne(query.Context, filter, options).Decode(dest)
+	err = collection.FindOne(ctx, filter, options).Decode(dest)
 	if err == mongo.ErrNoDocuments {
-		return goplay.ErrQueryEmptyResult
+		return play.ErrQueryEmptyResult
 	}
 	return
 }
 
-func UpdateAndGetOne(dest interface{}, query *goplay.Query) (err error) {
+func UpdateAndGetOne(dest interface{}, query *play.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
@@ -111,31 +108,36 @@ func UpdateAndGetOne(dest interface{}, query *goplay.Query) (err error) {
 
 	filter := fetch(query)
 	update := modifier(query)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancelFunc()
 
-	err = collection.FindOneAndUpdate(query.Context, filter, update).Decode(dest)
+	err = collection.FindOneAndUpdate(ctx, filter, update).Decode(dest)
 	if err == mongo.ErrNoDocuments {
-		return goplay.ErrQueryEmptyResult
+		return play.ErrQueryEmptyResult
 	}
 	return
 }
 
-func Save(meta interface{}, upsetId *primitive.ObjectID, query *goplay.Query) (err error) {
+func Save(meta interface{}, upsetId *primitive.ObjectID, query *play.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
 	}
 
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancelFunc()
+
 	if upsetId == nil {
-		_, err = collection.InsertOne(query.Context, meta)
+		_, err = collection.InsertOne(ctx, meta)
 	} else {
 		filter := bson.M{"_id": upsetId}
-		_, err = collection.ReplaceOne(query.Context, filter, meta)
+		_, err = collection.ReplaceOne(ctx, filter, meta)
 	}
 
 	return
 }
 
-func Delete(query *goplay.Query) (modcount int64, err error) {
+func Delete(query *play.Query) (modcount int64, err error) {
 	var result *mongo.DeleteResult
 	var collection *mongo.Collection
 
@@ -149,14 +151,17 @@ func Delete(query *goplay.Query) (modcount int64, err error) {
 
 	filter := fetch(query)
 
-	if result, err = collection.DeleteMany(query.Context, filter); err != nil {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancelFunc()
+
+	if result, err = collection.DeleteMany(ctx, filter); err != nil {
 		return
 	}
 
 	return result.DeletedCount, nil
 }
 
-func Update(query *goplay.Query) (modcount int64, err error) {
+func Update(query *play.Query) (modcount int64, err error) {
 	var result *mongo.UpdateResult
 	var collection *mongo.Collection
 
@@ -170,41 +175,49 @@ func Update(query *goplay.Query) (modcount int64, err error) {
 
 	filter := fetch(query)
 	update := modifier(query)
-	if result, err = collection.UpdateMany(query.Context, filter, update); err != nil {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancelFunc()
+
+	if result, err = collection.UpdateMany(ctx, filter, update); err != nil {
 		return
 	}
 
 	return result.ModifiedCount, nil
 }
 
-func SaveList(metaList interface{}, query *goplay.Query) (err error) {
+func SaveList(metaList interface{}, query *play.Query) (err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
 	}
 	var writes []mongo.WriteModel
 
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancelFunc()
+
 	for _, meta := range metaList.([]interface{}) {
 		writes = append(writes, mongo.NewInsertOneModel().SetDocument(meta))
 	}
-	_, err = collection.BulkWrite(query.Context, writes)
+	_, err = collection.BulkWrite(ctx, writes)
 	return
 }
 
-func Count(query *goplay.Query) (count int64, err error) {
+func Count(query *play.Query) (count int64, err error) {
 	var collection *mongo.Collection
 	if collection, err = getCollection(query); err != nil {
 		return
 	}
 
 	filter := fetch(query)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancelFunc()
 
-	count, err = collection.CountDocuments(query.Context, filter)
+	count, err = collection.CountDocuments(ctx, filter)
 
 	return
 }
 
-func modifier(query *goplay.Query) bson.M {
+func modifier(query *play.Query) bson.M {
 	var mod bson.M = bson.M{}
 	var set bson.M = bson.M{}
 	var inc bson.M = bson.M{}
@@ -260,7 +273,7 @@ func fieldType(item interface{}) string {
 	return ""
 }
 
-func findOptions(query *goplay.Query) *options.FindOptions {
+func findOptions(query *play.Query) *options.FindOptions {
 	options := &options.FindOptions{}
 	if query.Limit[1] > 0 {
 		options.SetSkip(query.Limit[0])
@@ -281,7 +294,7 @@ func findOptions(query *goplay.Query) *options.FindOptions {
 	return options
 }
 
-func findOneOptions(query *goplay.Query) *options.FindOneOptions {
+func findOneOptions(query *play.Query) *options.FindOneOptions {
 	options := options.FindOneOptions{}
 	if query.Limit[1] > 0 {
 		options.SetSkip(query.Limit[0])
@@ -301,7 +314,7 @@ func findOneOptions(query *goplay.Query) *options.FindOneOptions {
 	return &options
 }
 
-func fetch(query *goplay.Query) bson.M {
+func fetch(query *play.Query) bson.M {
 	var filter = bson.M{}
 	for _, cond := range query.Conditions {
 		var fieldCon bson.M

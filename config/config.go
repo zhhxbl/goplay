@@ -1,20 +1,14 @@
 package config
 
-import (
-	"github.com/zhhxbl/goplay"
-)
-
-type Parser interface {
-	GetVal(key string) (val interface{}, err error)
-}
+import "github.com/leochen2038/play"
 
 type config struct {
-	parser Parser
+	parser interface{ play.Parser }
 }
 
 var configInstance *config
 
-func InitConfig(parser interface{ Parser }) {
+func InitConfig(parser interface{ play.Parser }) {
 	configInstance = &config{parser: parser}
 }
 
@@ -24,7 +18,7 @@ func Bool(key string) (val bool, err error) {
 		return
 	}
 
-	return goplay.ParseBool(v)
+	return play.ParseBool(v)
 }
 
 func String(key string) (val string, err error) {
@@ -33,7 +27,7 @@ func String(key string) (val string, err error) {
 		return
 	}
 
-	return goplay.ParseString(v)
+	return play.ParseString(v)
 }
 
 func Int(key string) (val int, err error) {
@@ -41,7 +35,7 @@ func Int(key string) (val int, err error) {
 	if v, err = configInstance.parser.GetVal(key); err != nil {
 		return
 	}
-	return goplay.ParseInt(v)
+	return play.ParseInt(v)
 }
 
 func Int64(key string) (val int64, err error) {
@@ -50,7 +44,7 @@ func Int64(key string) (val int64, err error) {
 		return
 	}
 
-	return goplay.ParseInt64(v)
+	return play.ParseInt64(v)
 }
 
 func Float64(key string) (val float64, err error) {
@@ -59,7 +53,7 @@ func Float64(key string) (val float64, err error) {
 		return
 	}
 
-	return goplay.ParseFloat64(v)
+	return play.ParseFloat64(v)
 }
 
 func MapInterface(key string) (list map[string]interface{}, err error) {
@@ -67,5 +61,5 @@ func MapInterface(key string) (list map[string]interface{}, err error) {
 	if v, err = configInstance.parser.GetVal(key); err != nil {
 		return
 	}
-	return goplay.ParseMapInterface(v)
+	return play.ParseMapInterface(v)
 }

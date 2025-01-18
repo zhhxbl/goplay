@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/leochen2038/play"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -10,7 +11,7 @@ import (
 )
 
 type JsonParser struct {
-	refreshTickTime time.Duration
+	refashTickTime  time.Duration
 	lastFileModTime int64
 	filename        string
 	data            map[string]interface{}
@@ -34,7 +35,11 @@ func (parser *JsonParser) GetVal(key string) (val interface{}, err error) {
 	return
 }
 
-func NewJsonParser(file string, refreshTickTime time.Duration) (parser Parser, err error) {
+func (parser *JsonParser) Bind(obj interface{}) error {
+	panic("EtcdParser no support Bind Method yet")
+}
+
+func NewJsonParser(file string, refashTickTime time.Duration) (parser play.Parser, err error) {
 	var dataByte []byte
 	var jsonParser = JsonParser{}
 
@@ -48,11 +53,11 @@ func NewJsonParser(file string, refreshTickTime time.Duration) (parser Parser, e
 
 	fileInfo, _ := os.Stat(file)
 	jsonParser.filename = file
-	jsonParser.refreshTickTime = refreshTickTime
+	jsonParser.refashTickTime = refashTickTime
 	jsonParser.lastFileModTime = fileInfo.ModTime().Unix()
 
-	if refreshTickTime > 0 {
-		jsonParser.refreshTickTime = refreshTickTime
+	if refashTickTime > 0 {
+		jsonParser.refashTickTime = refashTickTime
 		jsonParser.startWatchFile()
 	}
 
@@ -75,7 +80,7 @@ func (parser *JsonParser) startWatchFile() {
 func (parser *JsonParser) watchFile() {
 	var err error
 	var fileInfo os.FileInfo
-	var ticker = time.NewTicker(parser.refreshTickTime * time.Second)
+	var ticker = time.NewTicker(parser.refashTickTime * time.Second)
 
 	for {
 		select {

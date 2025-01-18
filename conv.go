@@ -1,4 +1,4 @@
-package goplay
+package play
 
 import (
 	"errors"

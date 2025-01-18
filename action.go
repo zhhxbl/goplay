@@ -1,7 +1,6 @@
-package goplay
+package play
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"reflect"
@@ -10,14 +9,8 @@ import (
 	"unsafe"
 )
 
-var actionPools = make(map[string]*sync.Pool, 32)
-
 type Processor interface {
 	Run(ctx *Context) (string, error)
-}
-
-func GetActionPools() map[string]*sync.Pool {
-	return actionPools
 }
 
 func NewProcessorWrap(handle interface{ Processor }, run func(p Processor, ctx *Context) (string, error), next map[string]*ProcessorWrap) *ProcessorWrap {
@@ -30,6 +23,8 @@ type ProcessorWrap struct {
 	next map[string]*ProcessorWrap
 }
 
+var actionPools = make(map[string]*sync.Pool, 32)
+
 func RegisterAction(name string, new func() interface{}) {
 	actionPools[name] = &sync.Pool{New: new}
 }
@@ -41,63 +36,68 @@ func RunProcessor(s unsafe.Pointer, n uintptr, p Processor, ctx *Context) (strin
 		for i = 0; i < n; i++ {
 			*(*byte)(unsafe.Pointer(ptr + i)) = 0
 		}
-		vInput := reflect.ValueOf(p).Elem().FieldByName("Input")
-		if err := ctx.Input.Bind(vInput); err != nil {
+		if err := ctx.Input.Bind(p); err != nil {
 			return "", err
 		}
 	}
 	return p.Run(ctx)
 }
 
-func RunAction(ctx *Context) (err error) {
-	var flag string
-	defer func() {
-		if panicInfo := recover(); panicInfo != nil {
-			err = fmt.Errorf("panic: %v\n%v", panicInfo, string(debug.Stack()))
-		}
-	}()
-	pool, ok := actionPools[ctx.ActionInfo.Name]
+func RunAction(name string, ctx *Context) (err error) {
+	//passProc := make([]Processor, 0, 4)
+	pool, ok := actionPools[name]
 	if !ok {
-		return errors.New("can not find action:" + ctx.ActionInfo.Name)
+		return errors.New("can not find action:" + name)
 	}
 
 	ihandler := pool.Get()
 	if ihandler == nil {
-		return errors.New("can not get action handle from pool:" + ctx.ActionInfo.Name)
-	}
-	defer pool.Put(ihandler)
-
-	// set context
-	if ctx.ActionInfo.Timeout > 0 {
-		var cancel context.CancelFunc
-		ctx.ctx, cancel = context.WithTimeout(ctx.ctx, ctx.ActionInfo.Timeout)
-		defer cancel()
+		return errors.New("can not get action handle from pool:" + name)
 	}
 
-	currentHandler := ihandler.(*ProcessorWrap)
-	for ok := true; ok; currentHandler, ok = currentHandler.next[flag] {
-		flag, err = currentHandler.run(currentHandler.p, ctx)
-		if ctx.ctx.Err() != nil {
-			if err != nil {
-				return err
-			}
-			return ctx.ctx.Err()
+	defer func() {
+		pool.Put(ihandler)
+		if panicInfo := recover(); panicInfo != nil {
+			err = fmt.Errorf("panic: %v\n%v", panicInfo, string(debug.Stack()))
 		}
-		if err != nil {
-			return err
+	}()
+
+	handler := ihandler.(*ProcessorWrap)
+	ctx.ActionName = name
+	currentHandler := handler
+	for ok := true; ok; currentHandler, ok = currentHandler.next[ctx.doneFlag] {
+		if ctx.doneFlag, err = currentHandler.run(currentHandler.p, ctx); err != nil {
+			return
 		}
 		if procOutputType, ok := reflect.TypeOf(currentHandler.p).Elem().FieldByName("Output"); ok {
 			procOutputVal := reflect.ValueOf(currentHandler.p).Elem().FieldByName("Output")
 			for i := 0; i < procOutputType.Type.NumField(); i++ {
 				structType := procOutputType.Type.Field(i)
 				structValue := procOutputVal.Field(i)
-				structKey := structType.Tag.Get("key")
+				structKey := structType.Tag.Get("json")
 				if structKey == "" {
 					structKey = structType.Name
 				}
-				ctx.Response.Output.Set(structKey, structValue.Interface())
+				ctx.Output.Set(structKey, structValue.Interface())
 			}
 		}
+		//passProc = append(passProc, currentHandler.p)
 	}
+
+	//for _, p := range passProc {
+	//	if procOutputType, ok := reflect.TypeOf(p).Elem().FieldByName("Output"); ok {
+	//		procOutputVal := reflect.ValueOf(p).Elem().FieldByName("Output")
+	//		for i := 0; i < procOutputType.Type.NumField(); i++ {
+	//			structType := procOutputType.Type.Field(i)
+	//			structValue := procOutputVal.Field(i)
+	//			structKey := structType.Tag.Get("json")
+	//			if structKey == "" {
+	//				structKey = structType.Name
+	//			}
+	//			ctx.Output.Set(structKey, structValue.Interface())
+	//		}
+	//	}
+	//}
+
 	return
 }

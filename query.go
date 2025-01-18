@@ -1,9 +1,6 @@
-package goplay
+package play
 
-import (
-	"context"
-	"errors"
-)
+import "errors"
 
 var ErrQueryEmptyResult = errors.New("empty result in query")
 
@@ -19,10 +16,9 @@ type Query struct {
 	DBName, Table string
 	Conditions    []Condition
 	Sets          map[string][]interface{}
-	Fields        map[string]struct{}
+	Fields        map[string]bool
 	Order         [][2]string
 	Limit         [2]int64
 	Group         []string
 	Router        string
-	Context       context.Context
 }

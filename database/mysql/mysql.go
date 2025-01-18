@@ -4,15 +4,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/leochen2038/play"
+	"github.com/leochen2038/play/config"
 	"reflect"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/zhhxbl/goplay"
-	"github.com/zhhxbl/goplay/config"
 )
 
 var dbconnects sync.Map
@@ -47,7 +46,7 @@ func getConnect(router string) (*sql.DB, error) {
 	}
 }
 
-func GetList(dest interface{}, query *goplay.Query) (err error) {
+func GetList(dest interface{}, query *play.Query) (err error) {
 	var conn *sql.DB
 	var rows *sql.Rows
 	if conn, err = getConnect(query.Router); err != nil {
@@ -102,7 +101,7 @@ func QueryMap(router, sqlStr string, args ...interface{}) (result []map[string]i
 	return
 }
 
-func GetOne(dest interface{}, query *goplay.Query) (err error) {
+func GetOne(dest interface{}, query *play.Query) (err error) {
 	var conn *sql.DB
 	var rows *sql.Rows
 	if conn, err = getConnect(query.Router); err != nil {
@@ -179,7 +178,7 @@ func placeholders(v interface{}) string {
 	return b.String()
 }
 
-func condtext(query *goplay.Query) (string, []interface{}) {
+func condtext(query *play.Query) (string, []interface{}) {
 	values := make([]interface{}, 0, len(query.Conditions))
 	fields := make([]string, 0, len(query.Conditions))
 	for _, v := range query.Conditions {
@@ -375,7 +374,7 @@ func scanOne(rows *sql.Rows, i interface{}) error {
 	}
 
 	if empty {
-		return goplay.ErrQueryEmptyResult
+		return play.ErrQueryEmptyResult
 	}
 
 	return nil
@@ -437,7 +436,7 @@ func traversalsByName(t reflect.Type, names []string) ([]int, error) {
 	return r, nil
 }
 
-func Count(query *goplay.Query) (count int64, err error) {
+func Count(query *play.Query) (count int64, err error) {
 	var conn *sql.DB
 	var rows *sql.Rows
 	if conn, err = getConnect(query.Router); err != nil {
@@ -458,7 +457,7 @@ func Count(query *goplay.Query) (count int64, err error) {
 	return
 }
 
-func Update(query *goplay.Query) (modcount int64, err error) {
+func Update(query *play.Query) (modcount int64, err error) {
 	var conn *sql.DB
 	var res sql.Result
 	if conn, err = getConnect(query.Router); err != nil {
@@ -487,7 +486,7 @@ func Update(query *goplay.Query) (modcount int64, err error) {
 	return
 }
 
-func updatetext(query *goplay.Query) (string, []interface{}) {
+func updatetext(query *play.Query) (string, []interface{}) {
 	values := make([]interface{}, 0, len(query.Sets))
 	fields := make([]string, 0, len(query.Sets)+1)
 	find := false
@@ -499,7 +498,7 @@ func updatetext(query *goplay.Query) (string, []interface{}) {
 		}
 	}
 
-	if _, ok := query.Fields["Fmtime"]; ok && !find {
+	if query.Fields["Fmtime"] && !find {
 		fields = append(fields, "Fmtime = ?")
 		values = append(values, time.Now().Unix())
 	}
@@ -508,7 +507,7 @@ func updatetext(query *goplay.Query) (string, []interface{}) {
 	return sql, values
 }
 
-func Delete(query *goplay.Query) (delcount int64, err error) {
+func Delete(query *play.Query) (delcount int64, err error) {
 	var conn *sql.DB
 	var res sql.Result
 	if conn, err = getConnect(query.Router); err != nil {
@@ -526,7 +525,7 @@ func Delete(query *goplay.Query) (delcount int64, err error) {
 	return
 }
 
-func Save(meta interface{}, query *goplay.Query) (id int64, err error) {
+func Save(meta interface{}, query *play.Query) (id int64, err error) {
 	var conn *sql.DB
 	var res sql.Result
 
@@ -536,10 +535,11 @@ func Save(meta interface{}, query *goplay.Query) (id int64, err error) {
 
 	insert, values := intotext(meta)
 
-	if res, err = conn.Exec("REPLACE INTO "+query.DBName+"."+query.Table+insert, values...); err == nil {
-		id, _ = res.LastInsertId()
-	}
+	res, err = conn.Exec("REPLACE INTO "+query.DBName+"."+query.Table+insert, values...)
 
+	if err == nil {
+		id, err = res.LastInsertId()
+	}
 	return
 }
 
