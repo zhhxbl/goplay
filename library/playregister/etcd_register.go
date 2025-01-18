@@ -1,4 +1,4 @@
-package goplayregister
+package playregister
 
 import (
 	"encoding/json"
