@@ -3,7 +3,7 @@ package initProject
 import (
 	"fmt"
 
-	"github.com/zhhOceanfly/goplay/goplay/reconst/env"
+	"github.com/zhhxbl/goplay/goplay/reconst/env"
 )
 
 func getMainTpl(name string) string {

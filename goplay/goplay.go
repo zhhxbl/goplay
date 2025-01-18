@@ -8,16 +8,16 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/zhhOceanfly/goplay/goplay/initProject"
-	"github.com/zhhOceanfly/goplay/goplay/reconst"
-	"github.com/zhhOceanfly/goplay/goplay/reconst/env"
+	"github.com/zhhxbl/goplay/goplay/initProject"
+	"github.com/zhhxbl/goplay/goplay/reconst"
+	"github.com/zhhxbl/goplay/goplay/reconst/env"
 )
 
 var command string
 
 // 多包同名，可以在import进行引用别名
 func init() {
-	env.FrameworkName = "github.com/zhhOceanfly/goplay"
+	env.FrameworkName = "github.com/zhhxbl/goplay"
 	env.FrameworkVer = "v0.6.8"
 
 	if len(os.Args) < 2 {

@@ -1,4 +1,4 @@
-module github.com/zhhOceanfly/goplay
+module github.com/zhhxbl/goplay
 
 go 1.16
 

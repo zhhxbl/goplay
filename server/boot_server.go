@@ -14,7 +14,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhxbl/goplay"
 )
 
 type runningInstance struct {

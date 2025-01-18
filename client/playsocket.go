@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhxbl/goplay"
 )
 
 var noDeadline time.Time

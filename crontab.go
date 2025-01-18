@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
-	"github.com/zhhOceanfly/goplay/library/etcd"
+	"github.com/zhhxbl/goplay/library/etcd"
 )
 
 var (

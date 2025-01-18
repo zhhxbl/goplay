@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/zhhOceanfly/goplay/goplay/reconst/env"
+	"github.com/zhhxbl/goplay/goplay/reconst/env"
 )
 
 func InitProject(upgrade bool) (err error) {

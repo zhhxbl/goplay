@@ -8,10 +8,10 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/zhhOceanfly/goplay"
-	"github.com/zhhOceanfly/goplay/config"
-	"github.com/zhhOceanfly/goplay/library/cache"
-	"github.com/zhhOceanfly/goplay/library/etcd"
+	"github.com/zhhxbl/goplay"
+	"github.com/zhhxbl/goplay/config"
+	"github.com/zhhxbl/goplay/library/cache"
+	"github.com/zhhxbl/goplay/library/etcd"
 )
 
 var (

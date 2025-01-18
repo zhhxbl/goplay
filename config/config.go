@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/zhhOceanfly/goplay"
+	"github.com/zhhxbl/goplay"
 )
 
 type Parser interface {

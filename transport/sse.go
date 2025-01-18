@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/zhhOceanfly/goplay"
-	"github.com/zhhOceanfly/goplay/library/golang/json"
+	"github.com/zhhxbl/goplay"
+	"github.com/zhhxbl/goplay/library/golang/json"
 )
 
 type SseTransport struct {
